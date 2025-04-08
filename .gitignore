@@ -1,0 +1,10 @@
+#Files not to track
+
+# This combo prevents files with no extensions (binaries)
+*
+!*.*
+!*/
+
+# Emacs auto generated files
+*~
+\#*\#
