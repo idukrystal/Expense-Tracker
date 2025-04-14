@@ -11,7 +11,7 @@ var listCmd = &cobra.Command {
 	Use: "list [--help | -h]",
 	Short: "List expenses",
 	Run: func(cmd *cobra.Command, args []string) {
-		expensesCsv, err := util.GetExpensesCsv()
+		expensesCsv, err := util.GetExpenses()
 		if err != nil {
 			log.Fatal(err)
 		}

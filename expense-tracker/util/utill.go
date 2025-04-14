@@ -1,115 +1,68 @@
 package util
 
 import (
-	"encoding/csv"
-	"path/filepath"
+	"github.com/idukrystal/Expense-Tracker/expense-tracker/file"
 	"fmt"
-	"os"
 	"strconv"
 	"time"
 )
 
-var headers = []string{"ID", "Date", "Description", "Amount"}
+var csvFilePath string
 
-func getOpenCsvFile() (*os.File, error) {
-	csvFilePath, err := getCsvFilePath()
+func init() {
+	_csvFilePath, err := file.GetCsvFilePath()
 	if err != nil {
-		return nil, err
+		print("error filename \n")
 	}
-	csvFile, err := os.OpenFile(csvFilePath, os.O_RDWR, 0644)
-	if err != nil {
-		return nil, err
-	}
-	return csvFile, nil
-}
-
-func GetExpensesCsv() ([][]string, error) {
-	csvFile, err := getOpenCsvFile()
-	if err  != nil {
-		return nil, err
-	}
-	defer csvFile.Close()
-	reader := csv.NewReader(csvFile)
-	return reader.ReadAll()
-}
-
-
-func getCsvFilePath() (string, error) {
-	// getFile returns the path to the CSV file, creating it with headers if it doesn't exist
-	// Check for XDG_DATA_HOME
-	dataHome := os.Getenv("XDG_DATA_HOME")
-	if dataHome == "" {
-		homeDir, err := os.UserHomeDir()
-		if err != nil {
-			return "", fmt.Errorf("cannot get home directory: %v", err)
-		}
-		dataHome = filepath.Join(homeDir, ".local", "share")
-	}
-
-
-	// Construct app-specific path
-	appDir := filepath.Join(dataHome, "expense-tracker")
-	if err := os.MkdirAll(appDir, 0755); err != nil {
-		return "", fmt.Errorf("failed to create directory: %v", err)
-	}
-
-	// Full file path
-	filePath := filepath.Join(appDir, "expenses.csv")
-
-	// Check if file exists
-	if _, err := os.Stat(filePath); os.IsNotExist(err) {
-		// Create and write headers
-		file, err := os.Create(filePath)
-		if err != nil {
-			fmt.Printf("create file for first time: %w ", err)
-			return "", fmt.Errorf("failed to create file: %v", err)
-		}
-		defer file.Close()
-
-		writer := csv.NewWriter(file)
-		if err := writer.Write(headers); err != nil {
-			return "", fmt.Errorf("failed to write headers: %v", err)
-		}
-		writer.Flush()
-		if err := writer.Error(); err != nil {
-			return "", fmt.Errorf("error flushing CSV writer: %v", err)
-		}
-	}
-
-	return filePath, nil
+	csvFilePath = _csvFilePath
 }
 
 func AddExpense(desc string, amt uint64) (uint64, error) {
-	expenses, err := GetExpensesCsv()
+	expensesCsv, err := file.ReadCsv(csvFilePath)
 	if err != nil {
 		return 0, err
 	}
-	id, err := getNextId(expenses)
+	id, err := getNextId(expensesCsv)
 	if err != nil {
 		return 0, err
 	}
 	date := time.Now().Format("Mon, 2 Jan 2006")
-	expenses = append(expenses, []string{
+	expensesCsv = append(expensesCsv, []string{
 		strconv.FormatUint(id, 10),
 		date,
 		desc,
-		strconv.FormatUint(amt, 10)})
-	csvFile, err := getOpenCsvFile()
+		strconv.FormatUint(amt, 10),
+	})
+	err = file.WriteCsv(csvFilePath, expensesCsv)
 	if err != nil {
 		return 0, err
 	}
-	defer csvFile.Close()
-	csvWritter := csv.NewWriter(csvFile)
-	err = csvWritter.WriteAll(expenses)
-	if err != nil {
-		return 0, err
-	}
-	if err = csvWritter.Error(); err!= nil {
-		return 0, err
-	}
-	fmt.Println(expenses)
 	return id, nil
 	
+}
+
+func DeleteExpense(id uint64) error {
+	expensesCsv, err := file.ReadCsv(csvFilePath)
+	if err != nil {
+		return err
+	}
+	for i, line := range expensesCsv[1:] {
+		lineId, err := strconv.ParseUint(line[0], 10, 64)
+		if err != nil {
+			return fmt.Errorf("Wrong Csv Format: %w", err)
+		}
+		
+		if lineId == id {
+			expensesCsv = append(expensesCsv[:i+1], expensesCsv[i+2:]...)
+			return file.WriteCsv(csvFilePath, expensesCsv)
+		}
+	}
+	return fmt.Errorf("(id: %d) Not Found", id)
+}
+
+
+func GetExpenses() ([][]string, error) {
+	return file.ReadCsv(csvFilePath)
 }
 
 func getNextId(expensesCsv [][]string) (uint64, error) {
