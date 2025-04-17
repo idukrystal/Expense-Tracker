@@ -1,3 +1,4 @@
+
 package util
 
 import (
@@ -17,7 +18,8 @@ func init() {
 	csvFilePath = _csvFilePath
 }
 
-func AddExpense(desc string, amt uint64) (uint64, error) {
+func AddExpense(desc string, amt uint64, year , month, day int) (uint64, error) {
+	fmt.Println(year, month, day)
 	expensesCsv, err := file.ReadCsv(csvFilePath)
 	if err != nil {
 		return 0, err
@@ -26,7 +28,7 @@ func AddExpense(desc string, amt uint64) (uint64, error) {
 	if err != nil {
 		return 0, err
 	}
-	date := time.Now().Format("Mon, 2 Jan 2006")
+	date := time.Date(year, time.Month(month), day, 0, 0, 0, 0, time.Local).Format("2006-01-02")
 	expensesCsv = append(expensesCsv, []string{
 		strconv.FormatUint(id, 10),
 		date,
@@ -61,8 +63,28 @@ func DeleteExpense(id uint64) error {
 }
 
 
-func GetExpenses() ([][]string, error) {
-	return file.ReadCsv(csvFilePath)
+//func GetExpenses() ([][]string, error) {
+//	return file.ReadCsv(csvFilePath)
+//}
+
+func SumExpenses(month int) (uint64, error) {
+	expensesCsv, err := file.ReadCsv(csvFilePath)
+	if err != nil {
+		return 0, err
+	}
+	var sum uint64
+	for _, line := range expensesCsv[1:] {
+		curAmt, err := strconv.ParseUint(line[3], 10, 64)
+		if err != nil {
+			return 0, err
+		}
+		sum += curAmt
+	}
+	return sum, nil
+}
+
+func UpdateExpense(id uint64, desc string, amt uint64, year, month, day int) error {
+	return nil
 }
 
 func getNextId(expensesCsv [][]string) (uint64, error) {

@@ -24,5 +24,6 @@ var deleteCmd = &cobra.Command {
 
 func init() {
 	deleteCmd.Flags().Uint64Var(&id, "id", 0, "Unique id of expense to delete use 'list' command to view all expenses")
+	deleteCmd.MarkFlagRequired("id")
 	rootCmd.AddCommand(deleteCmd)
 }

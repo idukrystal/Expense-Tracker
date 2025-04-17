@@ -16,7 +16,7 @@ var listCmd = &cobra.Command {
 			log.Fatal(err)
 		}
 		for _, line := range expensesCsv {
-			fmt.Printf("# %s %s %s %s\n",
+			fmt.Printf("# %s %s %s $%s\n",
 				line[0],
 				line[1],
 				line[2],
