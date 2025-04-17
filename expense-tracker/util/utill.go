@@ -1,12 +1,16 @@
-
 package util
-
+uu
 import (
 	"github.com/idukrystal/Expense-Tracker/expense-tracker/file"
 	"fmt"
 	"strconv"
 	"time"
 )
+
+type FilterOption struct {
+	Name string
+	Value any
+}
 
 var csvFilePath string
 
@@ -63,9 +67,19 @@ func DeleteExpense(id uint64) error {
 }
 
 
-//func GetExpenses() ([][]string, error) {
-//	return file.ReadCsv(csvFilePath)
-//}
+func GetExpenses() ([][]string, error) {
+	allExpensesCsv, err := file.ReadCsv(csvFilePath)
+	if err != nil {
+		return nil, err
+	}
+	filteredExpensesCsv := make([][]string, len(allExpenses))
+	for index, line := range allExpensrsCsv {
+		if matchFilters(line, filters) {
+			append(filteredExpensesCsv, line)
+		}
+	}
+	return filteredExpensesCsv, nil
+}
 
 func SumExpenses(month int) (uint64, error) {
 	expensesCsv, err := file.ReadCsv(csvFilePath)
