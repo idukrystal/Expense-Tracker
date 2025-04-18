@@ -11,7 +11,8 @@ var listCmd = &cobra.Command {
 	Use: "list [--help | -h]",
 	Short: "List expenses",
 	Run: func(cmd *cobra.Command, args []string) {
-		expensesCsv, err := util.GetExpenses()
+		filters := getFilters(cmd)
+		expensesCsv, err := util.GetExpenses(filters...)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -25,6 +26,20 @@ var listCmd = &cobra.Command {
 		}
 		
 	},
+}
+
+func getFilters(cmd *cobra.Command) []util.Filter{
+	filters := make([]util.Filter, 0 ,4)
+	if cmd.Flags().Changed("month") || cmd.Flags().Changed("day") {
+		filters = append(filters, util.Filter{Name: "month", Value: month})
+	}
+	if cmd.Flags().Changed("year") || cmd.Flags().Changed("month") || cmd.Flags().Changed("day") {
+		filters = append(filters, util.Filter{Name: "year", Value: year})
+	}
+	if cmd.Flags().Changed("day") {
+		filters = append(filters, util.Filter{Name: "day", Value: day})
+	}
+	return filters
 }
 
 func init() {

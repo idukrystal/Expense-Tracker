@@ -12,7 +12,8 @@ var summaryCmd = &cobra.Command {
 	Use: "summary [--month <month> | --help]",
 	Short: "Shows sum of expenses",
 	Run: func(cmd *cobra.Command, args []string) {
-		sum, err := util.SumExpenses(month)
+		filters := getFilters(cmd)
+		sum, err := util.SumExpenses(filters...)
 		if err != nil {
 			log.Fatal(err)
 		}
