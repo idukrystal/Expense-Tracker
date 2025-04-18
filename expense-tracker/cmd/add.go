@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/idukrystal/Expense-Tracker/expense-tracker/util"
 	"github.com/spf13/cobra"
-	"os"
 )
 
 var (
@@ -23,13 +22,12 @@ var addCmd = &cobra.Command {
 			id, err := util.AddExpense(desc, amt, year, month, day)
 			if err == nil {
 				fmt.Printf("Expense added successfully (ID: %d)\n", id)
-				os.Exit(1)
+				return
 			}
 		}	
 
 		// This only runs if err ! nill in one of the if statements
 		fmt.Printf("%s: %s\n", cmd.CalledAs(),  err)
-		return
 	},
 }
 
