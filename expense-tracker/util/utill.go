@@ -98,6 +98,29 @@ func SumExpenses(filters ...Filter) (uint64, error) {
 	return sum, nil
 }
 
-func UpdateExpense(id uint64, desc string, amt uint64, year, month, day int) error {
-	return nil
+func UpdateExpense(id uint64, filters ...Filter) error {
+	expensesCsv, err := file.ReadCsv(csvFilePath)
+	if err != nil {
+		return err
+	}
+	for i,  line := range expensesCsv {
+		if i == 0 { continue }
+		lineId, err := strconv.ParseUint(line[0], 10, 64)
+		if err != nil {
+			return fmt.Errorf("Error with CSV file: %w", err)
+		}
+		if id == lineId {
+			newLine, err := updateUsingFilters(line, filters...)
+			if err != nil {
+				return err
+			}
+			expensesCsv = append(append(expensesCsv[:i], newLine), expensesCsv[i+1:]...)
+			err = file.WriteCsv(csvFilePath, expensesCsv)
+			if err != nil {
+				return err
+			}
+			return nil
+		}
+	}
+	return fmt.Errorf("(Id: %d) Not Found", id)
 }

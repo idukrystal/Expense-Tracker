@@ -32,7 +32,7 @@ var addCmd = &cobra.Command {
 }
 
 func validateDateFlags(cmd *cobra.Command) error {
-	if err := validateDate(year, month, day); err != nil {
+	if err := util.ValidateDate(year, month, day); err != nil {
 		return err
 	}
 
