@@ -5,17 +5,8 @@ import (
 	"log"
 	"strconv"
 	"time"
-
-	"github.com/idukrystal/Expense-Tracker/expense-tracker/file"
 )
 
-func init() {
-	_csvFilePath, err := file.GetCsvFilePath()
-	if err != nil {
-		print("error filename \n")
-	}
-	csvFilePath = _csvFilePath
-}
 
 func matchesFilters(csvLine []string, filters ...Filter) bool {
 	temp, err := time.Parse(timeLayout, csvLine[1])
@@ -80,7 +71,10 @@ func updateUsingFilters(csvLine []string, filters ...Filter) ([]string, error) {
 
 func getNextId(expensesCsv [][]string) (uint64, error) {
 	var higestId uint64 = 0
-	for _, line := range expensesCsv[1:] {
+	for index, line := range expensesCsv {
+		if index == 0 {
+			continue
+		}
 		id, err := strconv.ParseUint(line[0], 10, 64)
 		if err != nil{
 			return 0, fmt.Errorf("Error with csv file: %w", err)

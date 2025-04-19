@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/idukrystal/Expense-Tracker/expense-tracker/util"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 var (
@@ -16,10 +17,11 @@ var addCmd = &cobra.Command {
 	Short: "Adds a new expense",
 	Run: func(cmd *cobra.Command, args []string) {
 		var err error
+		var id uint64
 		
 		// Ensure proper use of the --day, --month and --year flags
 		if err = validateDateFlags(cmd); err == nil {
-			id, err := util.AddExpense(desc, amt, year, month, day)
+			id, err = util.AddExpense(viper.GetString("file"), desc, amt, year, month, day)
 			if err == nil {
 				fmt.Printf("Expense added successfully (ID: %d)\n", id)
 				return
@@ -27,7 +29,7 @@ var addCmd = &cobra.Command {
 		}	
 
 		// This only runs if err ! nill in one of the if statements
-		fmt.Printf("%s: %s\n", cmd.CalledAs(),  err)
+		fmt.Printf("%s: %v\n", cmd.CalledAs(),  err)
 	},
 }
 

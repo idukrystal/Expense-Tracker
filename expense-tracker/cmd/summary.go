@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/idukrystal/Expense-Tracker/expense-tracker/util"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"log"
 )
 
@@ -13,7 +14,7 @@ var summaryCmd = &cobra.Command {
 	Short: "Shows sum of expenses",
 	Run: func(cmd *cobra.Command, args []string) {
 		filters := getFilters(cmd)
-		sum, err := util.SumExpenses(filters...)
+		sum, err := util.SumExpenses(viper.GetString("file"), filters...)
 		if err != nil {
 			log.Fatal(err)
 		}

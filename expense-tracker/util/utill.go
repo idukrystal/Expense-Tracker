@@ -18,9 +18,8 @@ func (f Filter) String() string {
 }
 
 var timeLayout string = "2006-01-02"
-var csvFilePath string
 
-func AddExpense(desc string, amt uint64, year , month, day int) (uint64, error) {
+func AddExpense(csvFilePath string, desc string, amt uint64, year , month, day int) (uint64, error) {
 	expensesCsv, err := file.ReadCsv(csvFilePath)
 	if err != nil {
 		return 0, err
@@ -44,7 +43,7 @@ func AddExpense(desc string, amt uint64, year , month, day int) (uint64, error) 
 	
 }
 
-func DeleteExpense(id uint64) error {
+func DeleteExpense(csvFilePath string, id uint64) error {
 	expensesCsv, err := file.ReadCsv(csvFilePath)
 	if err != nil {
 		return err
@@ -63,7 +62,7 @@ func DeleteExpense(id uint64) error {
 	return fmt.Errorf("(id: %d) Not Found", id)
 }
 
-func GetExpenses(filters ...Filter) ([][]string, error) {
+func GetExpenses(csvFilePath string, filters ...Filter) ([][]string, error) {
 	fmt.Println("filters: ", filters)
 	allExpensesCsv, err := file.ReadCsv(csvFilePath)
 	if err != nil {
@@ -82,8 +81,8 @@ func GetExpenses(filters ...Filter) ([][]string, error) {
 	return filteredExpensesCsv, nil
 }
 
-func SumExpenses(filters ...Filter) (uint64, error) {
-	expensesCsv, err := GetExpenses(filters...)
+func SumExpenses(csvFilePath string, filters ...Filter) (uint64, error) {
+	expensesCsv, err := GetExpenses(csvFilePath, filters...)
 	if err != nil {
 		return 0, err
 	}
@@ -98,7 +97,7 @@ func SumExpenses(filters ...Filter) (uint64, error) {
 	return sum, nil
 }
 
-func UpdateExpense(id uint64, filters ...Filter) error {
+func UpdateExpense(csvFilePath string, id uint64, filters ...Filter) error {
 	expensesCsv, err := file.ReadCsv(csvFilePath)
 	if err != nil {
 		return err
@@ -119,8 +118,16 @@ func UpdateExpense(id uint64, filters ...Filter) error {
 			if err != nil {
 				return err
 			}
-			return nil
+			return nil 
 		}
 	}
 	return fmt.Errorf("(Id: %d) Not Found", id)
+}
+
+func ExportCsv(filePath string, data [][]string) error {
+	err := file.WriteCsv(filePath, data)
+	if err != nil {
+		return err
+	}
+	return nil
 }

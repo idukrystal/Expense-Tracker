@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/idukrystal/Expense-Tracker/expense-tracker/util"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 
@@ -16,7 +17,7 @@ var updateCmd = &cobra.Command {
 			fmt.Printf("%s: No flags provided\n", cmd.CalledAs())
 			return
 		}
-		err := util.UpdateExpense(id, filters...)
+		err := util.UpdateExpense(viper.GetString("file"), id, filters...)
 		if err != nil {
 			fmt.Printf("%s: %s\n", cmd.CalledAs(), err)
 			return
