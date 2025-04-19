@@ -17,8 +17,8 @@ func (f Filter) String() string {
 	return fmt.Sprintf("%s: %v", f.Name, f.Value.(int))
 }
 
-var csvFilePath string
 var timeLayout string = "2006-01-02"
+var csvFilePath string
 
 func AddExpense(desc string, amt uint64, year , month, day int) (uint64, error) {
 	expensesCsv, err := file.ReadCsv(csvFilePath)
